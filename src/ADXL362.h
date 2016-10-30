@@ -48,6 +48,7 @@
 /******************************************************************************/
 #include <Arduino.h>
 #include "ADXL362Reg.h"
+#include <SPI.h>
 
 /******************************************************************************/
 /********************************* ADXL362 ************************************/
@@ -56,22 +57,24 @@
 
 class ADXL362
 {
-    private:
-    uint8_t _address;
-    uint8_t  _clk, _miso, _mosi, _ss, _irq;
+private:
+    
+    uint8_t  _address;
+    uint8_t  _ss;
+    uint8_t  _irq;
+    SPIClass *_spi;
 
-    public:
-    // ADXL362() {}
-    ADXL362(uint8_t _sck, uint8_t _miso,uint8_t _mosi, uint8_t _ss, uint8_t _irq = 0);
+public:
+     ADXL362() {}
+
+    char begin(uint8_t ss, SPIClass *spi=&SPI1,  uint8_t irq = 0);
     ~ADXL362() {}
 
-    protected:
+protected:
     void SPI_read(byte  thisRegister, unsigned char* pReadData, int bytesToRead);
     void SPI_write(byte  thisRegister, unsigned char* pData, int bytesToWrite);
     
-    public:
-    char begin(void);
-
+public:
     /*! Writes data into a register. */
     void setRegisterValue(unsigned short registerValue,
                           unsigned char  registerAddress,
@@ -121,4 +124,5 @@ class ADXL362
                                   unsigned short time);
 };
 
+extern ADXL362 adiAccelerometer;
 #endif /* __ADXL362_H__ */

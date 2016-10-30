@@ -63,23 +63,23 @@ ADXL362::SPI_read(byte  thisRegister, unsigned char* pReadData,
 
     volatile unsigned char *data = pReadData;   // result to return
 
-    SPI1.beginTransaction(SPISettings(5000000, MSBFIRST, SPI_MODE0));
+    _spi->beginTransaction(SPISettings(5000000, MSBFIRST, SPI_MODE0));
     
     // take the chip select low to select the device:
     digitalWrite(_ss, LOW);
     // send the device the register you want to read:
-    SPI1.transfer(*data);
+    _spi->transfer(*data);
     data++;
-        bytesToRead--;
+    bytesToRead--;
     // send the device the register you want to read:
-     SPI1.transfer(*data);
+    _spi->transfer(*data);
     data++;
     bytesToRead--;
 
     // if you still have another byte to read:
     while (bytesToRead > 0) {
         // shift the first byte left, then get the second byte:
-        *data = SPI1.transfer(0x00);
+        *data = _spi->transfer(0x00);
         // decrement the number of bytes left to read:
         bytesToRead--;
          data++;
@@ -88,7 +88,7 @@ ADXL362::SPI_read(byte  thisRegister, unsigned char* pReadData,
     // take the chip select high to de-select:
     digitalWrite(_ss, HIGH);
     
-    SPI1.endTransaction();
+    _spi->endTransaction();
 }
 
 void
@@ -96,40 +96,26 @@ ADXL362::SPI_write(byte  thisRegister, unsigned char* pData, int bytesToWrite) {
 
     unsigned char* data = pData;
    
-    SPI1.beginTransaction(SPISettings(5000000, MSBFIRST, SPI_MODE0)); 
+    _spi->beginTransaction(SPISettings(5000000, MSBFIRST, SPI_MODE0)); 
         
     // take the chip select low to select the device:
     digitalWrite(_ss, LOW);  
     // send the device the register you want to read:
-    SPI1.transfer(*data);
+    _spi->transfer(*data);
     bytesToWrite--;
             
     // if you still have another byte to read:
     while (bytesToWrite > 0) {
         // shift the first byte left, then get the second byte:
         data++;
-        SPI1.transfer(*data);
+        _spi->transfer(*data);
         // decrement the number of bytes left to read:
         bytesToWrite--;
     }
     // take the chip select high to de-select:
     digitalWrite(_ss, HIGH);
     
-    SPI1.endTransaction();
-}
-
-
-ADXL362::ADXL362(uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss, uint8_t irq):
-_clk(clk),
-_miso(miso),
-_mosi(mosi),
-_ss(ss),
-_irq(irq)
-//_reset(0),
-//_//usingSPI(true),
-//_//hardwareSPI(false)
-{
-	pinMode(_ss, OUTPUT);
+    _spi->endTransaction();
 }
 
 
@@ -140,24 +126,29 @@ _irq(irq)
  * @return  0 - the initialization was successful and the device is present;
  *         -1 - an error occurred.
 *******************************************************************************/
-char ADXL362::begin(void)
+char ADXL362::begin(uint8_t ss, SPIClass *spi,  uint8_t irq)
 {
     volatile unsigned char regValue = 0;
     volatile char          status   = -1;
     
-  //  SPI1.begin();
-  //  	SPI1.setDataMode(SPI_MODE0);	//CPHA = CPOL = 0    MODE = 0
-  //  	delay(1000);
+    this->_irq = irq;   
+    this->_spi = spi;
+    this->_ss = ss;
+    
+    pinMode(_ss, OUTPUT);
+    digitalWrite(_ss, HIGH);
+         
+    //  _spi->setDataMode(SPI_MODE0);	//CPHA = CPOL = 0    MODE = 0
+    //  delay(1000);
         
     // Write to SOFT RESET, "R"
     unsigned short reset = ADXL362_RESET_KEY;
-   setRegisterValue(reset, ADXL362_REG_SOFT_RESET, 1);
+    setRegisterValue(reset, ADXL362_REG_SOFT_RESET, 1);
     delay(10);
                         
     //status = SPI_Init(0, 4000000, 0, 1);
     getRegisterValue((unsigned char *)&regValue, ADXL362_REG_PARTID, 1);
-    if((regValue != ADXL362_PART_ID))
-    {
+    if((regValue != ADXL362_PART_ID))  {
         status = -1;
     }
     selectedRange = 2; // Measurement Range: +/- 2g (reset default).
@@ -256,7 +247,7 @@ void ADXL362::softwareReset(void)
  *
  * @param pwrMode - Power mode.
  *                  Example: 0 - standby mode.
- *                  1 - measure mode.
+ *                           1 - measure mode.
  *
  * @return None.
 *******************************************************************************/
@@ -471,3 +462,5 @@ void ADXL362::setupInactivityDetection(unsigned char  refOrAbs,
                       (refOrAbs * ADXL362_ACT_INACT_CTL_INACT_REF);
     setRegisterValue(newActInactReg, ADXL362_REG_ACT_INACT_CTL, 1);
 }
+
+ADXL362 adiAccelerometer;
