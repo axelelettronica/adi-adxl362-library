@@ -44,6 +44,9 @@ Written by Seve <seve@ioteam.it>.
 ##  Information
 -------------------
 
+The current library has been derived from Analog Device code licensed under a custom open source license.
+It inheriths the original and included below license.
+
  Copyright 2012(c) Analog Devices, Inc.
  
   All rights reserved.
