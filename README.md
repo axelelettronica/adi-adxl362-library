@@ -1,7 +1,7 @@
 # ADI Board Analog Device ADXL362  3-axis MEMS accelerometer
 ----
 This is the library for the Analog Devices ADXL362 component and
-it is an extension of the original Analog Device library for the component.
+it is an extension of the original Analog Device library.
 
 The ADXL362 is an ultralow power, 3-axis MEMS accelerometer that consumes less than 2 μA at a 100 Hz output data rate
 and 270 nA when in motion triggered wake-up mode.
@@ -24,7 +24,7 @@ Host control and result reading is performed using an SPI interface, no extra pi
 It was principally designed to work with the ADI board, but could
 be easily adapt and use on every Arduino and Arduino Certified boards.
 
-Written by Seve <seve@axelelettronica>.
+Written by Seve <seve@ioteam.it>.
 
 ## Repository Contents
 -------------------
@@ -44,19 +44,35 @@ Written by Seve <seve@axelelettronica>.
 ##  Information
 -------------------
 
-Copyright (c) Amel Technology. All right reserved.
-
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
-
+ Copyright 2012(c) Analog Devices, Inc.
+ 
+  All rights reserved.
+ 
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions are met:
+   - Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+   - Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in
+     the documentation and/or other materials provided with the
+     distribution.
+   - Neither the name of Analog Devices, Inc. nor the names of its
+     contributors may be used to endorse or promote products derived
+     from this software without specific prior written permission.
+   - The use of this software may or may not infringe the patent rights
+     of one or more patent holders.  This license does not release you
+     from the requirement that you obtain separate licenses from these
+     patent holders to use this software.
+   - Use of the software either in source or binary form, must be run
+     on or directly connected to an Analog Devices Inc. component.
+ 
+  THIS SOFTWARE IS PROVIDED BY ANALOG DEVICES "AS IS" AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, NON-INFRINGEMENT,
+  MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL ANALOG DEVICES BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, INTELLECTUAL PROPERTY RIGHTS, PROCUREMENT OF SUBSTITUTE GOODS OR
+  SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
