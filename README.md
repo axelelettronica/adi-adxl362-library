@@ -1,6 +1,7 @@
 # ADI Board Analog Device ADXL362  3-axis MEMS accelerometer
 ----
-This is a library for the Analog Devices ADXL362 component.
+This is the library for the Analog Devices ADXL362 component and
+it is an extension of the original Analog Device library for the component.
 
 The ADXL362 is an ultralow power, 3-axis MEMS accelerometer that consumes less than 2 μA at a 100 Hz output data rate
 and 270 nA when in motion triggered wake-up mode.
@@ -14,11 +15,6 @@ operation that can run as low as 270 nA at a 6 Hz (approximate) measurement rate
 A pin output is provided to directly control an external switch when activity is detected, 
 if desired. 
 In addition, the ADXL362 has provisions for external control of sampling time and/or an external clock.
-
-
-
-
-
 
 
 [* ADXL362 Home Page *](http://www.analog.com/ADXL362)

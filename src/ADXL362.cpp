@@ -118,8 +118,32 @@ ADXL362::SPI_write(byte  thisRegister, unsigned char* pData, int bytesToWrite) {
     _spi->endTransaction();
 }
 
+/******************************************************************************
+ * @brief Checking Component presence reading the device ids.
+ *
+ * @return  0 - the device is present;
+ *         false - an error occurred.
+*******************************************************************************/
+bool ADXL362::check(void)
+{
+    volatile unsigned char regValue = 0;
+    
+    getRegisterValue((unsigned char *)&regValue, ADXL362_REG_DEVID_AD, 1);
+    if((regValue != ADXL362_DEVICE_AD))  {
+        return false;
+    } 
+    getRegisterValue((unsigned char *)&regValue, ADXL362_REG_DEVID_MST, 1);
+    if((regValue != ADXL362_DEVICE_MST))  {
+        return false;
+    }
+    getRegisterValue((unsigned char *)&regValue, ADXL362_REG_PARTID, 1);
+    if((regValue != ADXL362_PART_ID))  {
+        return false;
+    }   
+    return true;
+}
 
-/***************************************************************************//**
+/******************************************************************************
  * @brief Initializes communication with the device and checks if the part is
  *        present by reading the device id.
  *
@@ -128,29 +152,25 @@ ADXL362::SPI_write(byte  thisRegister, unsigned char* pData, int bytesToWrite) {
 *******************************************************************************/
 char ADXL362::begin(uint8_t ss, SPIClass *spi,  uint8_t irq)
 {
-    volatile unsigned char regValue = 0;
     volatile char          status   = -1;
     
     this->_irq = irq;   
     this->_spi = spi;
     this->_ss = ss;
-    
+
     pinMode(_ss, OUTPUT);
     digitalWrite(_ss, HIGH);
-         
-    //  _spi->setDataMode(SPI_MODE0);	//CPHA = CPOL = 0    MODE = 0
-    //  delay(1000);
-        
+    pinMode(_irq, INPUT);
+           
     // Write to SOFT RESET, "R"
     unsigned short reset = ADXL362_RESET_KEY;
     setRegisterValue(reset, ADXL362_REG_SOFT_RESET, 1);
     delay(10);
-                        
-    //status = SPI_Init(0, 4000000, 0, 1);
-    getRegisterValue((unsigned char *)&regValue, ADXL362_REG_PARTID, 1);
-    if((regValue != ADXL362_PART_ID))  {
-        status = -1;
-    }
+      
+    if (check() == false) {
+        return -1;
+    }                    
+
     selectedRange = 2; // Measurement Range: +/- 2g (reset default).
 
     return status;
@@ -264,6 +284,27 @@ void ADXL362::setPowerMode(unsigned char pwrMode)
 }
 
 /***************************************************************************//**
+ * @brief Places the device into wekup/no_wakup mode.
+ *
+ * @param wakeup - wakeup mode.
+ *                 Example: 0 - no_wakeup mode.
+ *                          1 - wakeup mode.
+ *
+ * @return None.
+*******************************************************************************/
+void ADXL362::setWakeupMode(bool wakeup)
+{
+    unsigned char oldPowerCtl = 0;
+    unsigned char newPowerCtl = 0;
+
+    getRegisterValue(&oldPowerCtl, ADXL362_REG_POWER_CTL, 1);
+    newPowerCtl = oldPowerCtl & ~ADXL362_POWER_CTL_MEASURE(0x8);
+    if (wakeup) {
+        newPowerCtl = newPowerCtl | ADXL362_POWER_CTL_WAKEUP;
+    }    
+    setRegisterValue(newPowerCtl, ADXL362_REG_POWER_CTL, 1);
+}
+/***************************************************************************//**
  * @brief Selects the measurement range.
  *
  * @param gRange - Range option.
@@ -318,14 +359,18 @@ void ADXL362::setOutputRate(unsigned char outRate)
  *
  * @return None.
 *******************************************************************************/
-void ADXL362::getXyz(short* x, short* y, short* z)
+void ADXL362::getXyz(int16_t* x, int16_t* y, int16_t* z)
 {
     unsigned char xyzValues[6] = {0, 0, 0, 0, 0, 0};
-
+    volatile uint16_t u16 = 0;
+    
     getRegisterValue(xyzValues, ADXL362_REG_XDATA_L, 6);
-    *x = ((short)xyzValues[1] << 8) + xyzValues[0];
-    *y = ((short)xyzValues[3] << 8) + xyzValues[2];
-    *z = ((short)xyzValues[5] << 8) + xyzValues[4];
+    u16 = (xyzValues[1] << 8) + xyzValues[0];
+    *x = (int16_t) u16;
+    u16 = (xyzValues[3] << 8) + xyzValues[2];
+    *y = (int16_t) u16;
+    u16 = (xyzValues[5] << 8) + xyzValues[4];
+    *z = (int16_t) u16;
 }
 
 /***************************************************************************//**
@@ -340,14 +385,19 @@ void ADXL362::getXyz(short* x, short* y, short* z)
 void ADXL362::getGxyz(float* x, float* y, float* z)
 {
     unsigned char xyzValues[6] = {0, 0, 0, 0, 0, 0};
-
+    volatile uint16_t u16 = 0;
+    volatile int16_t s16 = 0;
     getRegisterValue(xyzValues, ADXL362_REG_XDATA_L, 6);
-    *x = ((short)xyzValues[1] << 8) + xyzValues[0];
-    *x /= (1000 / (selectedRange / 2));
-    *y = ((short)xyzValues[3] << 8) + xyzValues[2];
-    *y /= (1000 / (selectedRange / 2));
-    *z = ((short)xyzValues[5] << 8) + xyzValues[4];
-    *z /= (1000 / (selectedRange / 2));
+
+    u16 = (xyzValues[1] << 8) + xyzValues[0];
+    s16 = (int16_t)u16;
+    *x = ((float)s16) / (1000 / (selectedRange / 2));
+    u16 = (xyzValues[3] << 8) + xyzValues[2];
+    s16 = (int16_t)u16;
+    *y = ((float)s16) /(1000 / (selectedRange / 2));
+    u16 = (xyzValues[5] << 8) + xyzValues[4];
+    s16 = (int16_t)u16;
+    *z = ((float)s16) /(1000 / (selectedRange / 2));
 }
 
 /***************************************************************************//**
@@ -357,12 +407,14 @@ void ADXL362::getGxyz(float* x, float* y, float* z)
 *******************************************************************************/
 float ADXL362::readTemperature(void)
 {
-    unsigned char rawTempData[2] = {0, 0};
-    short         signedTemp     = 0;
-    float         tempCelsius    = 0;
-
+    unsigned char     rawTempData[2] = {0, 0};
+    float             tempCelsius    = 0;
+    volatile uint16_t unsignedTemp = 0;
+    volatile int16_t  signedTemp = 0;
+    
     getRegisterValue(rawTempData, ADXL362_REG_TEMP_L, 2);
-    signedTemp = (short)(rawTempData[1] << 8) + rawTempData[0];
+    unsignedTemp = (rawTempData[1] << 8) + rawTempData[0];
+    signedTemp = (int16_t)unsignedTemp;   
     tempCelsius = (float)signedTemp * 0.065;
     
     return tempCelsius;
@@ -461,6 +513,32 @@ void ADXL362::setupInactivityDetection(unsigned char  refOrAbs,
     newActInactReg |= ADXL362_ACT_INACT_CTL_INACT_EN |
                       (refOrAbs * ADXL362_ACT_INACT_CTL_INACT_REF);
     setRegisterValue(newActInactReg, ADXL362_REG_ACT_INACT_CTL, 1);
+}
+
+
+/***************************************************************************//**
+ * @brief Configures the Awake map for INT1/INT2.
+ *
+ * @param awakeMap  - awakeMap bitmask
+ *
+ * ADXL362_INTMAP2_INT_LOW
+ * ADXL362_INTMAP2_AWAKE   
+ * ADXL362_INTMAP2_INACT
+ * ADXL362_INTMAP2_ACT
+ * ADXL362_INTMAP2_FIFO_OVERRUN
+ * ADXL362_INTMAP2_FIFO_WATERMARK
+ * ADXL362_INTMAP2_FIFO_READY
+ * ADXL362_INTMAP2_DATA_READY
+ *
+ * @return None.
+*******************************************************************************/
+void ADXL362::setIntMap2(unsigned char  awakeMap)
+{
+    setRegisterValue(awakeMap, ADXL362_REG_INTMAP2, 1);
+}
+void ADXL362::setIntMap1(unsigned char  awakeMap)
+{
+    setRegisterValue(awakeMap, ADXL362_REG_INTMAP1, 1);
 }
 
 ADXL362 adiAccelerometer;

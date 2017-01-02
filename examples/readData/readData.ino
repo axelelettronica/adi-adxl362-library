@@ -12,54 +12,70 @@
     more information available here: http://www.analog.com/ADXL362
  */
 
-
 #include <Arduino.h>
 #include <SPI.h>
+
 #include <ADXL362.h>
 
-volatile uint16_t i = 0;
-float x, y, z;
-float temp;
-
+bool led = false;
+#define TRIGGER_LED  digitalWrite(PIN_LED, led ? 225 : 0); \
+                     led =!led
 
 void setup(void)
 {
-    SerialUSB.begin(115200);
-
+    Serial.begin(115200);
+        
     SPI1.begin();
-    delay(1000);
 
-    // Stop the execution till a Serial console is connected
-    while (!SerialUSB) {
+    pinMode(PIN_LED, OUTPUT);
+    digitalWrite(PIN_LED, HIGH);
+    
+    adiAccelerometer.begin(ADXL362_CS, &SPI1, ADXL362_EINT);
+    adiAccelerometer.setMeasurementMode();
+        
+    // Waiting for the console to continue
+    while (!Serial) {
         ;
     }
-
-   adiAccelerometer.begin(ADXL362_CS, &SPI1, ADXL362_EINT);
-   adiAccelerometer.setPowerMode(1);
 }
 
 
 
+volatile uint32_t i = 0;
+float x, y, z;
+int16_t  x16, y16, z16;
+float temp;
 
 void loop(void)
 {    
-    digitalWrite(PIN_LED, HIGH);
+    if (!(i%5)) {
+        TRIGGER_LED;
 
-    if (i%10000) {
-
+        if (!(i%500)) {
+            temp = adiAccelerometer.readTemperature();
+            Serial.print("\nADXL362 Device Temperature = ");
+            Serial.println(temp);
+            Serial.print("\n");
+        }   
+   
         adiAccelerometer.getGxyz(&x, &y, &z);
-        temp = adiAccelerometer.readTemperature();
-        
-        SerialUSB.print("Temperature = ");
-        SerialUSB.print(temp);
-        SerialUSB.print("\tX axis = ");
-        SerialUSB.print(x);
-        SerialUSB.print("\tY axis = ");
-        SerialUSB.print(y);        
-        SerialUSB.print("\tz axis = ");
-        SerialUSB.println(z);     
-    }   
+        adiAccelerometer.getXyz(&x16, &y16, &z16);        
+          
+        Serial.print("  X / Y / Z =  ");
+        Serial.print(x);
+        Serial.print("  /  ");
+        Serial.print(y);        
+        Serial.print("  /  ");
+        Serial.print(z);     
 
+        Serial.print("   RAW: [  ");
+        Serial.print(x16);
+        Serial.print("  /  ");
+        Serial.print(y16);
+        Serial.print("  /  ");
+        Serial.print(z16);   
+        Serial.println("  ]"); 
+    }   
     ++i;
-    delay(100);
+    delay(10);
 }

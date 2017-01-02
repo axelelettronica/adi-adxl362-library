@@ -66,15 +66,17 @@ private:
 
 public:
      ADXL362() {}
-
-    char begin(uint8_t ss, SPIClass *spi=&SPI1,  uint8_t irq = 0);
     ~ADXL362() {}
 
 protected:
     void SPI_read(byte  thisRegister, unsigned char* pReadData, int bytesToRead);
     void SPI_write(byte  thisRegister, unsigned char* pData, int bytesToWrite);
-    
+        /*! Places the device into standby/measure mode. */
+    void setPowerMode(unsigned char pwrMode);
 public:
+    
+    char begin(uint8_t ss, SPIClass *spi=&SPI1,  uint8_t irq = 0);
+    
     /*! Writes data into a register. */
     void setRegisterValue(unsigned short registerValue,
                           unsigned char  registerAddress,
@@ -91,8 +93,13 @@ public:
     /*! Resets the device via SPI communication bus. */
     void softwareReset(void);
 
-    /*! Places the device into standby/measure mode. */
-    void setPowerMode(unsigned char pwrMode);
+    /*! Places the device into measure mode. */
+    void setMeasurementMode(void) {setPowerMode(1);}
+    /*! Places the device into standby mode. */
+    void setStandbyMode(void) {setPowerMode(0);}
+        
+    /*! Places the device into wakeup mode. */    
+    void setWakeupMode(bool wakeup);
 
     /*! Selects the measurement range. */
     void setRange(unsigned char gRange);
@@ -101,7 +108,7 @@ public:
     void setOutputRate(unsigned char outRate);
 
     /*! Reads the 3-axis raw data from the accelerometer. */
-    void getXyz(short *x, short *y, short *z);
+    void getXyz(int16_t *x, int16_t *y, int16_t *z);
 
     /*! Reads the 3-axis raw data from the accelerometer and converts it to g. */
     void getGxyz(float* x, float* y, float* z);
@@ -122,6 +129,14 @@ public:
     void setupInactivityDetection(unsigned char  refOrAbs,
                                   unsigned short threshold,
                                   unsigned short time);
+    /*! Configures Interrupt1 awake Mask. */
+    void setIntMap1(unsigned char  awakeMap);
+                                  
+    /*! Configures Interrupt2 awake Mask. */ 
+    void setIntMap2(unsigned char  awakeMap);
+  
+    // Check device                           
+    bool check(void); 
 };
 
 extern ADXL362 adiAccelerometer;
