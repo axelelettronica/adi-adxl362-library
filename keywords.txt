@@ -5,7 +5,7 @@
 #######################################
 # Library (KEYWORD3)
 #######################################
-adiAccelerometer KEYWORD3
+adiAccelerometer	KEYWORD3
 
 #######################################
 # Datatypes (KEYWORD1)
@@ -15,25 +15,25 @@ adiAccelerometer KEYWORD3
 # Methods and Functions (KEYWORD2)
 #######################################
 
-setRegisterValue         KEYWORD2
-getRegisterValue         KEYWORD2
-getFifoValue             KEYWORD2
-softwareReset            KEYWORD2
-setMeasurementMode       KEYWORD2
-setStandbyMode           KEYWORD2
-setRange                 KEYWORD2
-setOutputRate            KEYWORD2
-getXyz                   KEYWORD2
-getGxyz                  KEYWORD2
-readTemperature          KEYWORD2
-fifoSetup                KEYWORD2
-setupActivityDetection   KEYWORD2
-setupInactivityDetection KEYWORD2
-check                    KEYWORD2
-setWakeupMode            KEYWORD2
-setIntMap1               KEYWORD2
-setIntMap2               KEYWORD2
-    
+setRegisterValue	KEYWORD2
+getRegisterValue	KEYWORD2
+getFifoValue	KEYWORD2
+softwareReset	KEYWORD2
+setMeasurementMode	KEYWORD2
+setStandbyMode	KEYWORD2
+setRange	KEYWORD2
+setOutputRate	KEYWORD2
+getXyz	KEYWORD2
+getGxyz	KEYWORD2
+readTemperature	KEYWORD2
+fifoSetup	KEYWORD2
+setupActivityDetection	KEYWORD2
+setupInactivityDetection	KEYWORD2
+check	KEYWORD2
+setWakeupMode	KEYWORD2
+setIntMap1	KEYWORD2
+setIntMap2	KEYWORD2
+
 #######################################
 # Constants (LITERAL1)
 #######################################
